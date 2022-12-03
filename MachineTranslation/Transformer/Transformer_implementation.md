@@ -301,7 +301,7 @@ Queries, Keys and Values are multiplied by a weight matrix WQi, WKi, WVi, respec
 Queries, Keys and Values are multiplied by a weight matrix WQ, WK, WV, respectively. Following this transformation, Queries, Keys and Values will each be split into several parts (the same number of parts: **num_heads**), along the last dimension (dim=-1). The ith part of Queries, the ith part of Keys and the ith part of Values will form the ith head (see MultiHeadAttention_ch11)
 ***
 
-![png](../plots/Transformer_fig1.png) 
+![png](../../plots/Transformer_fig1.png) 
 
 "Multi-head attention allows the model to jointly attend to information from different representation
 subspaces at different positions. With a single attention head, averaging inhibits this." - page 5.
@@ -420,7 +420,7 @@ class AddandNorm(nn.Module):
 ***
 ### *POSITIONAL ENCODING*
 
-![png](../plots/Transformer_fig2.png)
+![png](../../plots/Transformer_fig2.png)
 
 source : https://kazemnejad.com/blog/transformer_architecture_positional_encoding/
 
@@ -466,7 +466,7 @@ plt.show();
 
 
     
-![png](../plots/Transformer_fig3.png)
+![png](../../plots/Transformer_fig3.png)
     
 
 

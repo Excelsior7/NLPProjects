@@ -347,7 +347,7 @@ len(data),data[99997:100179]
 
 
 ```python
-max_vocab_size = 1500;
+max_vocab_size = 1000;
 
 tokenized_sentences, vocabulary = wordPieceTokenization(data[0:100179], max_vocab_size);
 ```
@@ -357,7 +357,7 @@ tokenized_sentences, vocabulary = wordPieceTokenization(data[0:100179], max_voca
 print("VOCABULARY SIZE : ", len(vocabulary.token_to_idx));
 ```
 
-    VOCABULARY SIZE :  1500
+    VOCABULARY SIZE :  1000
 
 
 ***
@@ -432,7 +432,7 @@ plt.ylabel("counts");
 
 
     
-![png](./plots/bert_fig1.png)
+![png](output_49_0.png)
     
 
 
@@ -442,7 +442,7 @@ print("NUMBER OF BERT SEQUENCES WITH 75 <= LENGTH <= 175 :",
       len(list(filter(lambda l: l >= 75 and l <= 175, _bert_seq_len))));
 ```
 
-    NUMBER OF BERT SEQUENCES WITH 75 <= LENGTH <= 175 : 315
+    NUMBER OF BERT SEQUENCES WITH 75 <= LENGTH <= 175 : 292
 
 
 **HYPERPARAMETERS**
@@ -576,49 +576,46 @@ print("nsp label : ", dataset[0][4], '\n');
 print("valid length : ", dataset[0][5],'\n');
 ```
 
-    masked bert sequence :  tensor([   1,  102,   35,   49,   35,    5,   48,   35,   73,  996,   39,    3,
-              35,    3,   35,    3,   50,    3,    5,   44,   34,  102,   35,    3,
-               5,   48,   35,    3,   35,   44,   50,  136,  228,   35,   48,    3,
-              42,    3,   10,   35,   31,   48,   66,  898,   35,   48, 1105,    8,
-               3,    3,    3,    5,   44,   34,    3,   13,   44,   34,   51,   33,
-              35,   17,    3,  136,  217,   35,   44,   33,    3,  102,   39,    3,
-            1403,   26,   45,   55,   31,   37,   35, 1028,    3,   35,   95,    5,
-            1332,   10,   35,   35,   42,    3,  130,   35,   44,   12,   35,  273,
-              49,   13,   44,    5, 1201,   35,    6,   45,   31,    3,    3,   12,
-              39,   49,   12,   45,   42,  178,   34,  476,   55,   17,   31,   50,
-              35,    3, 1083,    5,   44,   61,   35,   34,   39,   50,   39,   45,
-              44,   66,    8,    3,   49,    3,   45,   52,   35,   48,   55,   70,
-              12,   39,   49,   18,   31,    3,   39,   52,   35,   22,   39,   52,
-              35,   48,    2,  749,  102,    2,    4,    4,    4,    4,    4,    4,
-               4,    4,    4,    4,    4,    4,    4]) 
+    masked bert sequence :  tensor([  1,  13,   5,  48,  48,  39,  52, 418,  34,  12,  35,  48,  35,  29,
+             35,  49,  50,  35,   3,  34,  31,  55,   5,   3,   3,   3,  10,  39,
+             48,  49,   3,  24,  31,  49,  41,  13,  49, 136,   5,  49,  49,  51,
+              3,  35,   3,   8,  35,  31,  48,  23,  39,   3,  50,  35,  48,  66,
+             73,  27,  35,  42,  36,  31,  48,  35,   5,  44,  34,   3,  44,  33,
+             48,  35,  31,  49, 651, 245,  34,  35,  44,  33,  35,  13,  44, 102,
+             35,  23,  51,  33,  33,  35,  49,  49,  66,  73,   3,  34,  35, 741,
+              2,   5,  49,  13, 122,  42,  39,  35,  34,  23,  45,   3,  42,  45,
+             49,   3, 747,  13,  50,   3,  31,  55,   6,  35, 981,  49,  39,   3,
+            520,  35,   3,  52,  35,  34, 102,  31,  50,  73,  20,   3,  45,  37,
+             48,   3,  49,   3,  27,  31,  49,  22,  31,   3,  39,  34,   2,   4,
+              4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,   4,
+              4,   4,   4,   4,   4,   4,   4]) 
     
     segments :  tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0]) 
     
-    masked indices :  tensor([  7,  11,  13,  15,  17,  23,  27,  35,  37,  48,  49,  50,  54,  62,
-             68,  71,  80,  89,  97, 100, 104, 105, 106, 113, 115, 121, 135, 137,
-            149,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+    masked indices :  tensor([  7,  14,  18,  20,  23,  24,  25,  30,  33,  42,  44,  51,  67,  80,
+             94,  95, 109, 113, 117, 125, 126, 128, 137, 141, 143, 149,   0,   0,
               0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
               0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]) 
+              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]) 
     
-    masked tokens :  tensor([  35,   33,   43,   44,   49,   55,  448,    5,   42,   35,   31,  349,
-             136,   35,   35,   49,  102,   49,   13, 1318,   31,   50, 1028,   39,
-              31,   49,   39,   33,   50,    0,    0,    0,    0,    0,    0,    0,
-               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-               0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0]) 
+    masked tokens :  tensor([ 35,  35,  48,  31,  44,  34,  73,  50,  49,  48,  73,  49,  13,  35,
+            449,  34,   7,  35,  17, 747, 243,  39,  48,  35,  49,  46,   0,   0,
+              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+              0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0]) 
     
     nsp label :  tensor(0) 
     
-    valid length :  tensor(162) 
+    valid length :  tensor(153) 
     
 
 
@@ -686,18 +683,18 @@ class MultiHeadAttention(nn.Module):
         self.WO = nn.Linear(num_heads*dv,dmodel);
     
     def forward(self, queries, keys, values, valid_len=None):
-        # (queries|keys|values).shape = (batch_size, num_steps, dmodel)
+        # (queries|keys|values).shape = (batch_size, number of steps in bert_sequences, dmodel)
         
         heads = [];
         
         for i in range(self.num_heads):
             WQi, WKi, WVi = self.weights_params[i];
             
-            # ith head shape = (batch_size, num_steps, dv)
+            # ith head shape = (batch_size, number of steps in bert_sequences, dv)
             heads.append(
                 scaledDotProductAttention(WQi(queries), WKi(keys), WVi(values), self.dk, valid_len));
         
-        # heads.shape = (batch_size, num_steps, num_heads*dv)
+        # heads.shape = (batch_size, number of steps in bert_sequences, num_heads*dv)
         heads = torch.cat(heads, dim=-1);
         
         return self.WO(heads);
@@ -714,7 +711,7 @@ def scaledDotProductAttention(Q, K, V, dk, valid_len):
 
 ```python
 def maskedSoftmax(QK, valid_len):
-    # QK.shape = (batch_size, num_steps, num_steps)
+    # QK.shape = (batch_size, number of steps in bert_sequences, num_steps)
     
     QK_shape = QK.shape;
     
@@ -741,7 +738,7 @@ class FFN(nn.Module):
         self.relu = nn.ReLU();
         
     def forward(self, X):
-        # X.shape = (batch_size, num_steps, dmodel)
+        # X.shape = (batch_size, number of steps in bert_sequences, dmodel)
         
         return self.W2(self.relu(self.W1(X)));
 ```
@@ -758,7 +755,7 @@ class AddandNorm(nn.Module):
         self.dropout = nn.Dropout(dropout);
     
     def forward(self, X, Y):
-        # (X|Y).shape = (batch_size, num_steps, dmodel)
+        # (X|Y).shape = (batch_size, number of steps in bert_sequences, dmodel)
 
         return self.LN(X + self.dropout(Y));
 ```
@@ -788,7 +785,7 @@ class PositionalEncoding(nn.Module):
         self.pos_encoding[:,1::2] = torch.cos(wk*t);
 
     def forward(self, X):
-        # X.shape = (batch_size, num_steps, dmodel)
+        # X.shape = (batch_size, number of steps in bert_sequences, dmodel)
         X_shape = X.shape;
         
         pos_encoding = self.pos_encoding[:X_shape[1],:].unsqueeze(dim=0).repeat(X.shape[0],1,1);
@@ -809,7 +806,7 @@ class EncoderBlock(nn.Module):
         self.FFN = FFN(dmodel, dff);
 
     def forward(self, X, valid_len):
-        # sli_out.shape = (batch_size, number of steps in src_X, dmodel)
+        # sli_out.shape = (batch_size, number of steps in bert_sequences, dmodel)
         # sli stands for the ith sublayer of the encoder block.
         
         sl1_out = self.MHA(X, X, X, valid_len);
@@ -837,7 +834,7 @@ class BERTEncoder(nn.Module):
             self.encoder_blocks.append(EncoderBlock(num_heads, dmodel, dk, dv, dff, dropout));
 
     def forward(self, bert_sequences, segments, valid_len):
-        # X.shape = (batch_size, number of steps in src_X, dmodel)
+        # X.shape = (batch_size, number of steps in bert_sequences, dmodel)
         X = self.pencoding(self.embedding(bert_sequences)) + self.segment_embedding(segments);
             
         for i in range(self.num_blocks):
@@ -877,7 +874,7 @@ class BERTModel(nn.Module):
 
 ```python
 num_blocks=2;
-vocab_size=len(vocabulary.token_to_idx); 
+vocab_size=len(vocabulary.token_to_idx);
 num_heads = 3;
 dmodel, dk, dv, dff = 32, 16, 16, 32;
 dropout = 0.1;
@@ -959,7 +956,7 @@ plt.legend(["MLM LOSS", "NSP LOSS"]);
 
 
     
-![png](./plots/bert_fig2.png)
+![png](output_93_0.png)
     
 
 
@@ -974,6 +971,49 @@ torch.mean(torch.tensor(nsp_losses))
 
 
 
-    tensor(0.7537)
+    tensor(0.7095)
 
+
+
+***
+### *SPACE COMPLEXITY*
+***
+
+
+```python
+def spaceComplexity(dataset, num_blocks, vocab_size, num_heads, dmodel, dk, dv, dff, max_seq_len=1000):
+    ## BERT - PARAMETERS TO BE LEARNED
+    MLM = dmodel*dmodel + dmodel*vocab_size + 2;
+    NSP = dmodel*2;
+    MHA = num_heads*(2*(dmodel*dk) + dmodel*dv) + num_heads*dv*dmodel;
+    FFN = dmodel*dff + dff*dmodel;
+    AAN = 2;
+    POS_ENCODING = max_seq_len*dmodel;
+    ENCODER_BLOCK = MHA + FFN + AAN;
+    BERT_ENCODER = vocab_size*dmodel + POS_ENCODING + 2*dmodel + num_blocks*ENCODER_BLOCK;
+    BERT_MODEL = BERT_ENCODER + MLM + NSP + dmodel*dmodel + 2;
+    
+    ## DATASET
+    DATASET = (dataset.masked_bert_sequences.numel() 
+                + dataset.segments.numel() 
+                + dataset.masked_indices.numel() 
+                + dataset.masked_tokens.numel() 
+                + dataset.nsp_labels.numel() 
+                + dataset.valid_len.numel());
+
+    ## ASSUMING 4 BYTES OF MEMORY (AS AN APPROXIMATION) FOR EACH ELEMENT
+    SPACE_COMPLEXITY = (BERT_MODEL + DATASET)*4;
+    
+    print("APPROXIMATION OF THE NUMBERS OF MEGABYTES NEEDED IN THE PRE-TRAINING PHASE OF BERT\n");
+    print("MEGABYTES : ", SPACE_COMPLEXITY/10**6);    
+```
+
+
+```python
+spaceComplexity(dataset, num_blocks, vocab_size, num_heads, dmodel, dk, dv, dff);
+```
+
+    APPROXIMATION OF THE NUMBERS OF MEGABYTES NEEDED IN THE PRE-TRAINING PHASE OF BERT
+    
+    MEGABYTES :  1.056568
 
