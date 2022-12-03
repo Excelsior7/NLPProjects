@@ -292,13 +292,14 @@ len(source_vocab), len(target_vocab)
 ### *ATTENTION*
 
 ***
-Note: The implementation of Multi-Head Attention below follows the implementation of the paper "Attention Is All You Need" while the schema in the notebook MultiHeadAttention_ch11 follows the implementation of the book "Dive Into Deep Learning".
+Note: The implementation of Multi-Head Attention below follows the implementation of the paper "Attention Is All You Need" while the schema in the notebook [MultiHeadAttention_ch11](https://github.com/Excelsior7/DIVEINTODEEPLEARNING/blob/main/Attention_mechanisms/MultiHeadAttention_ch11.md) follows the implementation of the book "Dive Into Deep Learning".
 
 *In the first case* : 
 Queries, Keys and Values are multiplied by a weight matrix WQi, WKi, WVi, respectively in the case of the ith head. (See image below for more details)
 
 *In the second case*:
-Queries, Keys and Values are multiplied by a weight matrix WQ, WK, WV, respectively. Following this transformation, Queries, Keys and Values will each be split into several parts (the same number of parts: **num_heads**), along the last dimension (dim=-1). The ith part of Queries, the ith part of Keys and the ith part of Values will form the ith head (see MultiHeadAttention_ch11)
+Queries, Keys and Values are multiplied by a weight matrix WQ, WK, WV, respectively. Following this transformation, Queries, Keys and Values will each be split into several parts (the same number of parts: **num_heads**), along the last dimension (dim=-1). The ith part of Queries, the ith part of Keys and the ith part of Values will form the ith head
+(see [MultiHeadAttention_ch11](https://github.com/Excelsior7/DIVEINTODEEPLEARNING/blob/main/Attention_mechanisms/MultiHeadAttention_ch11.md))
 ***
 
 ![png](../../plots/Transformer_fig1.png) 
