@@ -3,6 +3,7 @@ import torch.nn as nn
 import math
 import collections
 import pickle
+import time
 
 print("__name__ ",__name__)
 
@@ -10,49 +11,50 @@ print("__name__ ",__name__)
 
 def standardizeString(string, is_string_target):
 
-    space_characters = ['\u202f', '\u2009','\xa0'];
-    special_characters = '«»"-.,;:!?';
-    numbers = '0123456789';
-    
-    ## Remove space characters
-    for i in range(len(space_characters)):
-        if space_characters[i] in string:
-            string = string.replace(space_characters[i], ' ');
+    def _standardizeString(string):
+
+        space_characters = ['\u202f', '\u2009','\xa0'];
+        special_characters = '«»&~"#\'{([-|`_\\^@)]=}+¨£$¤%µ,?;.:!§*<>';
+        numbers = '0123456789';
         
-    len_string, _string = len(string), '';
-    for i, char in enumerate(string):
-        
-        ## Handle special characters
-        if char in special_characters:
-            left_space, right_space = '', '';
+        ## Remove space characters
+        for i in range(len(space_characters)):
+            if space_characters[i] in string:
+                string = string.replace(space_characters[i], ' ');
             
-            if i > 0 and string[i-1] != ' ':
-                left_space = ' ';
-
-            if i+1 < len_string and string[i+1] != ' ' and string[i+1] not in special_characters:
-                right_space = ' ';
+        len_string, _string = len(string), '';
+        for i, char in enumerate(string):
             
-            _string += left_space + char + right_space;
-
-        ## Handle hours
-        elif char == 'h':
-            left_space, right_space = '', '';
-            
-            if i > 0 and string[i-1] in numbers:
-                left_space = ' ';
-            
-            if i+1 < len_string and string[i+1] in numbers:
-                right_space = ' ';
+            ## Handle special characters and numbers
+            if char in special_characters or char in numbers:
+                left_space, right_space = '', '';
                 
-            _string += left_space + char + right_space;         
-                
-        else:
-            _string += char;
+                if i > 0 and string[i-1] != ' ':
+                    left_space = ' ';
 
-    
-    _string = _string.lower() + ' <eos>';
-    
-    return '<bos> ' + _string if is_string_target else _string;
+                if i+1 < len_string and string[i+1] != ' ' and string[i+1] not in special_characters and string[i+1] not in numbers:
+                    right_space = ' ';
+                
+                _string += left_space + char + right_space;
+
+            else:
+                _string += char;
+
+        return _string.lower().split(' ');
+
+
+    _string = [s.strip() for s in string.split(' ') if s.strip() != ''];
+
+    output = [];
+    for i, _str in enumerate(_string):
+        output += _standardizeString(_str);
+        if i+1 < len(_string):
+            output += ['<space>'];
+
+    if is_string_target:
+        output = ['<bos>'] + output;
+
+    return output + ['<eos>'];     
 
 
 def dataLoader(batch_size, shuffle, *tensors):
@@ -84,19 +86,28 @@ class Vocab:
         for i in range(len(token_freq)):
             self.token_to_idx[token_freq[i][0]] = i;
             self.idx_to_token.append(token_freq[i][0]);
-    
+             
     def tokenToIdx(self, dataset2d):
         for i in range(len(dataset2d)):
+            dataset2d_irow = [];
             for j in range(len(dataset2d[i])):
                 current_token = dataset2d[i][j];
 
                 if current_token not in self.idx_to_token:
-                    dataset2d[i][j] = self.token_to_idx['<ukn>'];
+                    dataset2d_irow.append(self.token_to_idx['<special_begin>'])
+                    for token in current_token:
+                        if token not in self.idx_to_token:
+                            dataset2d_irow.append(self.token_to_idx['<ukn>']);
+                        else:
+                            dataset2d_irow.append(self.token_to_idx[token]);
+                    dataset2d_irow.append(self.token_to_idx['<special_end>'])
                 else:
-                    dataset2d[i][j] = self.token_to_idx[dataset2d[i][j]];
+                    dataset2d_irow.append(self.token_to_idx[current_token]);
+
+            dataset2d[i] = dataset2d_irow;
                     
         return torch.tensor(dataset2d);
-                
+
     def idxToToken(self, dataset2d):
         dataset2d = dataset2d.tolist();
         
@@ -152,13 +163,14 @@ class MultiHeadAttention(nn.Module):
         self.num_heads = num_heads;
         self.dk = dk;
         
-        self.weights_params = [];
+        self.weights_params = nn.ModuleList();
         for i in range(num_heads):
             WQi = nn.Linear(dmodel,dk);
             WKi = nn.Linear(dmodel,dk);
             WVi = nn.Linear(dmodel,dv);
             
-            self.weights_params.append([WQi,WKi,WVi]);
+            weights = nn.ModuleList([WQi,WKi,WVi]);
+            self.weights_params.append(weights);
             
         self.WO = nn.Linear(num_heads*dv,dmodel);
     
@@ -260,7 +272,7 @@ class Encoder(nn.Module):
         self.embedding = nn.Embedding(vocab_size, dmodel);
         self.pencoding = PositionalEncoding(dmodel, dropout, max_seq_len);
         
-        self.encoder_blocks = [];
+        self.encoder_blocks = nn.ModuleList();
         for i in range(num_blocks):
             self.encoder_blocks.append(EncoderBlock(num_heads, dmodel, dk, dv, dff, dropout));
 
@@ -310,7 +322,7 @@ class Decoder(nn.Module):
         
         self.W_out = nn.Linear(dmodel, vocab_size);
         
-        self.decoder_blocks = [];
+        self.decoder_blocks = nn.ModuleList();
         for i in range(num_blocks):
             self.decoder_blocks.append(DecoderBlock(num_heads, dmodel, dk, dv, dff, dropout));
         
@@ -341,16 +353,17 @@ class EncoderDecoder(nn.Module):
         
         return Y_hat;
     
-# HYPERPARAMETERS AND INSTANTIATION OF OBJECTS
+# INSTANTIATION OF MODEL AND HYPERPARAMETERS
 
+## -- ENGLISH -> FRENCH IMPLEMENTATION -- ##
 def loadVocab():
-    with open("./saved_objects/vocabs.pkl", 'rb') as f:
-        source_vocab = pickle.load(f);
-        target_vocab = pickle.load(f);
+    with open("./saved_objects/vocabs_en_to_fr.pkl", "rb") as f:
+        en_source_vocab = pickle.load(f);
+        fr_target_vocab = pickle.load(f);
 
-    return source_vocab, target_vocab;
+    return en_source_vocab, fr_target_vocab;
 
-def loadModel(load_parameters=False):
+def loadModel(load_parameters=False, load_on_cpu=True):
 
     source_vocab, target_vocab = loadVocab();
 
@@ -360,7 +373,7 @@ def loadModel(load_parameters=False):
     # SHARED HYPERPARAMETERS
     num_blocks = 2;
     num_heads = 6;
-    dmodel, dk, dv, dff = 128, 32, 32, 512;
+    dmodel, dk, dv, dff = 128, 32, 32, 1024;
     dropout = 0.1;
 
     encoder = Encoder(num_blocks, source_vocab_size, num_heads, dmodel, dk, dv, dff, dropout);
@@ -368,10 +381,73 @@ def loadModel(load_parameters=False):
     model = EncoderDecoder(encoder, decoder);
 
     if load_parameters:
-        checkpoint = torch.load('./saved_objects/parameters_Transformer_ch11.pt');
+        if load_on_cpu:
+            checkpoint = torch.load('./saved_objects/parameters_Transformer_en_to_fr.tar', map_location=torch.device('cpu'));
+        else:
+            checkpoint = torch.load('./saved_objects/parameters_Transformer_en_to_fr.tar');
+
         model.load_state_dict(checkpoint['model_state_dict']);
 
+    if load_on_cpu == False:
+        model.to(torch.device('cuda'));
+
     return model, source_vocab, target_vocab;
+
+
+## -- ENGLISH <-> FRENCH IMPLEMENTATION -- ##
+#
+# def loadVocab(en_to_fr):
+#     if en_to_fr:
+#         with open("./saved_objects/vocabs_en_to_fr.pkl", 'rb') as f:
+#             en_source_vocab = pickle.load(f);
+#             fr_target_vocab = pickle.load(f);
+
+#         return en_source_vocab, fr_target_vocab;
+
+#     else:
+#         with open("./saved_objects/vocabs_fr_to_en.pkl", 'rb') as f:
+#             fr_source_vocab = pickle.load(f);
+#             en_target_vocab = pickle.load(f);
+
+#         return fr_source_vocab, en_target_vocab;
+
+# def loadModel(en_to_fr, load_parameters=False, load_on_cpu=True):
+
+#     source_vocab, target_vocab = loadVocab(en_to_fr);
+
+#     source_vocab_size = len(source_vocab);
+#     target_vocab_size = len(target_vocab);
+
+#     # SHARED HYPERPARAMETERS
+#     num_blocks = 2;
+#     num_heads = 6;
+#     dmodel, dk, dv, dff = 128, 32, 32, 512;
+#     dropout = 0.1;
+
+#     encoder = Encoder(num_blocks, source_vocab_size, num_heads, dmodel, dk, dv, dff, dropout);
+#     decoder = Decoder(num_blocks, target_vocab_size, num_heads, dmodel, dk, dv, dff, dropout);
+#     model = EncoderDecoder(encoder, decoder);
+
+#     if load_parameters:
+#         if load_on_cpu:
+#             if en_to_fr:
+#                 checkpoint = torch.load('./saved_objects/parameters_Transformer_en_to_fr.tar', map_location=torch.device('cpu'));
+#             else:
+#                 checkpoint = torch.load('./saved_objects/parameters_Transformer_fr_to_en.tar', map_location=torch.device('cpu'));
+#         else:
+#             if en_to_fr:
+#                 checkpoint = torch.load('./saved_objects/parameters_Transformer_en_to_fr.tar');
+#             else:
+#                 checkpoint = torch.load('./saved_objects/parameters_Transformer_fr_to_en.tar');
+
+#         model.load_state_dict(checkpoint['model_state_dict']);
+
+#     if load_on_cpu == False:
+#         model.to(torch.device('cuda'));
+
+#     return model, source_vocab, target_vocab;
+#
+## ----------------------------------------------##
 
 
 # PREDICTION GIVEN USER INPUT
@@ -387,6 +463,7 @@ def prediction(model,datasets,source_vocab,target_vocab):
     src_X, source_seq_len_test, Y = next(iter(datasets));    
     bos_X = torch.empty((len(src_X),1)).fill_(bos_idx).type(torch.int32);
     
+    start = time.time();
     while(len(src_X) > 0):
 
         Y_hat = torch.transpose(model(src_X, bos_X, source_seq_len_test),0,1)[-1];
@@ -409,14 +486,37 @@ def prediction(model,datasets,source_vocab,target_vocab):
         src_X = src_X[~preds_is_eos];
         bos_X = bos_X[~preds_is_eos];
         source_seq_len_test = source_seq_len_test[~preds_is_eos];
+
+        if (time.time() - start) > 15:
+            preds_outputs_y = None;
+            break; 
          
     return preds_outputs_src, preds_outputs_y;
 
+def standardizeOutput(output):
+    if output is None:
+        return "EXECUTION ERROR ON THE SERVER";
+    else:
+        output = output[0];
+
+        standardized_ouput = "";
+        output = output[1:-1];
+
+        len_output = len(output);
+        for i in range(len_output):
+            if output[i] == '<special_begin>' or output[i] == '<special_end>':
+                continue;
+            elif output[i] == '<space>':
+                standardized_ouput += " ";
+            else:
+                standardized_ouput += output[i];
+
+        return standardized_ouput;
+
 def translateUserInput(user_input, model, source_vocab, target_vocab):
 
-    user_input_standardized = [standardizeString(user_input, False).split(' ')];
+    user_input_standardized = [standardizeString(user_input, False)];
     user_input_standardized_tokenized = source_vocab.tokenToIdx(user_input_standardized);
-    # user_input_standardized_tokenized = user_input_standardized_tokenized[user_input_standardized_tokenized != unk_idx].unsqueeze(0);
 
     user_input_sequence_len = sequencesLen(user_input_standardized);
 
@@ -424,3 +524,7 @@ def translateUserInput(user_input, model, source_vocab, target_vocab):
     data = dataLoader(1, False, user_input_standardized_tokenized, user_input_sequence_len, torch.tensor([[0]]));
 
     _, out_y = prediction(model, data, source_vocab, target_vocab);
+
+    return standardizeOutput(out_y);
+
+

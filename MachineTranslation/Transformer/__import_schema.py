@@ -1,7 +1,7 @@
 from Transformer_implementation import Vocab
 from Transformer_implementation import loadModel
 
-model, source_vocab, target_vocab = loadModel(False);
+model, source_vocab, target_vocab = loadModel();
 
 # model.eval();
 
