@@ -12,15 +12,8 @@ print("__name__ ",__name__)
 def standardizeString(string, is_string_target):
 
     def _standardizeString(string):
-
-        space_characters = ['\u202f', '\u2009','\xa0'];
         special_characters = '«»&~"#\'{([-|`_\\^@)]=}+¨£$¤%µ,?;.:!§*<>';
         numbers = '0123456789';
-        
-        ## Remove space characters
-        for i in range(len(space_characters)):
-            if space_characters[i] in string:
-                string = string.replace(space_characters[i], ' ');
             
         len_string, _string = len(string), '';
         for i, char in enumerate(string):
@@ -42,6 +35,12 @@ def standardizeString(string, is_string_target):
 
         return _string.lower().split(' ');
 
+        
+    ## Remove space characters
+    space_characters = ['\u202f', '\u2009','\xa0'];
+    for i in range(len(space_characters)):
+        if space_characters[i] in string:
+            string = string.replace(space_characters[i], ' ');
 
     _string = [s.strip() for s in string.split(' ') if s.strip() != ''];
 
@@ -371,9 +370,9 @@ def loadModel(load_parameters=False, load_on_cpu=True):
     target_vocab_size = len(target_vocab);
 
     # SHARED HYPERPARAMETERS
-    num_blocks = 2;
-    num_heads = 6;
-    dmodel, dk, dv, dff = 128, 32, 32, 1024;
+    num_blocks = 6;
+    num_heads = 8;
+    dmodel, dk, dv, dff = 512, 64, 64, 2048;
     dropout = 0.1;
 
     encoder = Encoder(num_blocks, source_vocab_size, num_heads, dmodel, dk, dv, dff, dropout);
